@@ -1,4 +1,4 @@
-use crate::{crossterm::style::ContentStyle, grapheme::StyledGraphemes, pane::Pane, PaneFactory};
+use crate::{crossterm::style::ContentStyle, grapheme::StyledGraphemes, pane::Pane, should_display_item, PaneFactory};
 
 use super::Listbox;
 
@@ -34,7 +34,11 @@ impl PaneFactory for State {
             .items()
             .iter()
             .enumerate()
-            .filter(|(i, _)| *i >= self.listbox.position() && *i < self.listbox.position() + height)
+            .filter(|(i, _)| {
+                let position = self.listbox.position();
+                let total_items = self.listbox.len();
+                should_display_item(*i, position, total_items, height)
+            })
             .map(|(i, item)| {
                 if i == self.listbox.position() {
                     let init =
